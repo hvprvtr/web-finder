@@ -8,6 +8,9 @@ import urllib3
 import random
 import argparse
 
+#TODO progressbar with time prognose
+#TODO logging => exceptions
+
 from progress.bar import Bar
 
 RANGE_NAME_SMALL = "small"
