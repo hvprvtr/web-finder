@@ -60,7 +60,8 @@ def is_it_http_req_to_https(resp):
         return False
 
     phrases =['The plain HTTP request was sent to HTTPS port',
-              'speaking plain HTTP to an SSL-enabled']
+              'speaking plain HTTP to an SSL-enabled',
+              'Client sent an HTTP request to an HTTPS server']
     for phrase in phrases:
         if phrase not in resp.text:
             continue
