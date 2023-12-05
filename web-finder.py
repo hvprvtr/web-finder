@@ -7,11 +7,9 @@ import time
 import urllib3
 import random
 import argparse
+from alive_progress import alive_bar
 
-#TODO progressbar with time prognose
 #TODO logging => exceptions
-
-from progress.bar import Bar
 
 RANGE_NAME_SMALL = "small"
 RANGE_NAME_MEDIUM = "medium"
@@ -90,11 +88,11 @@ class Worker(threading.Thread):
                 except BaseException as e:
                     # print("Exception: {0} => {1}".format(e, url))
                     pass
-                bar.next()
+                bar()
             except queue.Empty:
                 break
             except BaseException as e:
-                print("Exception: {0} => {1}".format(e, url))
+                # print("Exception: {0} => {1}".format(e, url))
                 pass
 
 
@@ -114,22 +112,20 @@ q = queue.Queue()
 for t in targets:
     q.put(t)
 
-bar = Bar('Progress', max=q.qsize())
+with alive_bar(q.qsize()) as bar:
+    pool = []
+    for _ in range(args.threads):
+        w = Worker()
+        w.start()
+        pool.append(w)
 
-start_q_size = q.qsize()
-pool = []
-for _ in range(args.threads):
-    w = Worker()
-    w.start()
-    pool.append(w)
+    is_alive = True
+    while is_alive:
+        is_alive = False
 
-is_alive = True
-while is_alive:
-    is_alive = False
+        for w in pool:
+            if w.is_alive():
+                is_alive = True
+                break
 
-    for w in pool:
-        if w.is_alive():
-            is_alive = True
-            break
-
-    time.sleep(10)
+        time.sleep(10)
